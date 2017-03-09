@@ -1,34 +1,60 @@
-﻿using System;
+﻿//================================================================================================================
+// EnemyMoveManager.cs
+// 製作者：戸軽隆二(八代くん流用)
+//================================================================================================================
+/* 概要
+		ステージに存在する"Enemy"のtagを持ったオブジェクトの動きを制御する
+		プレイヤーが近づくとプレイヤーにくっつく
+*/
+//================================================================================================================
+// バージョン
+//		1.0 クラス生成                              2017/03/08 戸軽隆二 
+//		1.1 敵が強制的にPlayer1に集まる不具合修正	2017/03/09 戸軽隆二 
+//================================================================================================================
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemyMoveManager : MonoBehaviour {
-
+	//---------------------------------------------------------------
+	// private変数
 	List<GameObject> players = new List<GameObject>();
 	List<GameObject> enemys = new List<GameObject>();
-	private float limitDistance = 10f; //敵キャラクターがどの程度近づいてくるか設定(この値以下には近づかない）
-	private bool on = true;
-	private float speed = 3; //移動速度
+	float limitDistance = 10f;	//敵キャラクターがどの程度近づいてくるか設定(この値以下には近づかない）
+	float speed = 3;			//移動速度
+	float frame = 0;            // 時間計測
 
-	float frame = 0;
-
+	//================================================================================================================
+	// 最初に１度だけ実行
+	//================================================================================================================
 	void Start() {
 		GameObject[] obj = GameObject.FindGameObjectsWithTag("Player");
 		for (int i = 0; i < obj.Length; i++) players.Add(obj[i]);
 	}
-
+	//================================================================================================================
+	// 常に更新し続ける処理
+	//================================================================================================================
 	void Update() {
 		//--------------------------------------------------------------------
 		// ステージ上の敵を検索
 		if (frame >= 1.0f) {
 			List<GameObject> enemylist = new List<GameObject>();
 			GameObject[] obj = GameObject.FindGameObjectsWithTag("Enemy");
-			for (int i = 0; i < obj.Length; i++) enemylist.Add(obj[i]);
+			for (int i = 0; i < obj.Length; i++) {
+				//---------------------------------------------
+				// プレイヤーにくっついた敵以外の情報にアクセス
+				if (obj[i].transform.parent == null)
+					enemylist.Add(obj[i]);
+				else if(obj[i].transform.parent.tag != "Player")
+					enemylist.Add(obj[i]);
+			}
+
 			enemys = enemylist;
 		}
 		else
 			frame += Time.deltaTime;
-
+		//------------------------------------------------------------------------------------------------------
+		// プレイヤーが範囲内に近づいたらくっつく
 		for (int i = 0; i < enemys.Count; i++) {
 			for (int j = 0; j < players.Count; j++) {
 				Vector3 playerPos = players[j].transform.position;                 //プレイヤーの位置
