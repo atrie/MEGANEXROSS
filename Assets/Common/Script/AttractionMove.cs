@@ -97,4 +97,14 @@ public class AttractionMove : SingletonMonoBehaviour<AttractionMove> {
 		startPos.Add(p1Pos);
 		startPos.Add(p2Pos);
 	}
+	//================================================================================================================
+	// AttractionとReactonの２つが動いてない時のフラグを取得する
+	//================================================================================================================
+	public bool Move() {
+		bool moveFlg2 = GetComponent<ReactionMove>().MoveFlg;
+		if (moveFlg == false && moveFlg2 == false)
+			return true;
+		else
+			return false;
+	}
 }
