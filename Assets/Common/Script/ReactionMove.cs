@@ -10,6 +10,7 @@
 //================================================================================================================
 // バージョン
 //		1.0 クラス生成                               2017/03/08 戸軽隆二 
+//		2.0 処理を自機だけに変更					 2017/04/18 戸軽隆二
 //================================================================================================================
 using UnityEngine;
 using System.Collections;
@@ -18,9 +19,8 @@ using System.Collections.Generic;
 public class ReactionMove : MonoBehaviour {
 	//---------------------------------------------------------------
 	// private変数
-	List<GameObject> players = new List<GameObject>();
-	List<Vector3> startPos = new List<Vector3>();
-	Vector3 gorlPos;
+	List<GameObject> objects = new List<GameObject>();
+	Vector3 startPos, gorlPos;
 	bool moveFlg = false;
 	float frame = 0;
 	//---------------------------------------------------------------
@@ -34,13 +34,11 @@ public class ReactionMove : MonoBehaviour {
 		if (moveFlg == true) {
 			if(frame < time) {
 				frame += Time.deltaTime;
-				for (int i = 0; i < players.Count; i++) {
-					Vector3 pos = players[i].transform.position;
-					Vector3 dis = gorlPos - startPos[i];
-					pos = startPos[i] - (dis * (frame / time) );
-					pos.y = startPos[i].y + ( (-1.0f + (frame / time) * 2) * (-1.0f + (frame / time) * 2) ) * -1 + 1;
-					players[i].transform.position = pos;
-				}
+				Vector3 pos = objects[0].transform.position;
+				Vector3 dis = gorlPos - startPos;
+				pos = startPos - (dis * (frame / time) );
+				pos.y = startPos.y + ( (-1.0f + (frame / time) * 2) * (-1.0f + (frame / time) * 2) ) * -1 + 1;
+				objects[0].transform.position = pos;
 			}
 			else {
 				Initialize();
@@ -53,28 +51,22 @@ public class ReactionMove : MonoBehaviour {
 	void Initialize() {
 		frame = 0;
 		moveFlg = false;
-		for (int i = 0; i < players.Count; i++) {
-			Vector3 pos = players[i].transform.position;
-			pos.y = startPos[i].y;
-			players[i].transform.position = pos;
-		}
-		players = new List<GameObject>();
-		startPos = new List<Vector3>();
+		Vector3 pos = objects[0].transform.position;
+		pos.y = startPos.y;
+		objects[0].transform.position = pos;
+		objects = new List<GameObject>();
+		startPos = new Vector3();
 	}
 	//================================================================================================================
 	// メソッドを呼び出せば反動の処理を実行できる
 	//================================================================================================================
 	public void Reaction(List<GameObject> player) {
 		moveFlg = true;     // Update実行
-		players = player;	// プレイヤーの情報を保存
+		objects = player;   // オブジェクトの情報を保存
 		//-------------------------------------------------
-		// 中間座標を計算
-		Vector3 p1Pos = players[0].transform.position;
-		Vector3 p2Pos = players[1].transform.position;
-		gorlPos = p1Pos - (p1Pos - p2Pos) / 2;
-		// プレイヤーの最初の座標を覚える
-		startPos.Add(p1Pos);
-		startPos.Add(p2Pos);
+		// スタート座標と目的の座標を保存
+		startPos = objects[0].transform.position;
+		gorlPos = objects[1].transform.position;
 	}
 	//================================================================================================================
 	// プロパティ関数
